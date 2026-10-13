@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Splicing Area Calculator</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1B365D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Splicing Calc">
+    <meta name="description" content="Conveyor Belt Splicing Area Dimensions Calculator">
+
+    <!-- Web Application Manifest (Embedded) -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Splicing Area Calculator","short_name":"SplicingCalc","start_url":".","display":"standalone","background_color":"#1B365D","theme_color":"#1B365D","icons":[{"src":"https://via.placeholder.com/192/1B365D/FFFFFF?text=CALC","sizes":"192x192","type":"image/png"}]}'>
+
+    <style>
+        :root {
+            --primary: #1B365D;
+            --accent: #007AFF;
+            --bg: #F2F4F7;
+            --card-bg: #FFFFFF;
+            --text: #1C1C1E;
+            --border: #E5E5EA;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #48484A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background-color: #FAFAFA;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "▼";
+            font-size: 12px;
+            color: #8E8E93;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+
+        .results-section {
+            margin-top: 10px;
+            background-color: #E8EEF5;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #B0C4DE;
+        }
+
+        .results-section h3 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 15px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(27, 54, 93, 0.1);
+            font-size: 15px;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-val {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .highlight-row {
+            background-color: #1B365D;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .highlight-row .result-val {
+            color: #FFD700;
+            font-size: 18px;
+        }
+
+        .pwa-banner {
+            background: #FFF9E6;
+            border: 1px solid #FFE58F;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 12px;
+            color: #856404;
+            margin-top: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div>
+        <div class="header">
+            <h2>SPLICING AREA CALCULATOR</h2>
+            <p>Conveyor Belt Dimensions Mobile App</p>
+        </div>
+
+        <div class="form-group">
+            <label for="beltWidth">Belt Width (mm)</label>
+            <div class="select-wrapper">
+                <select id="beltWidth" onchange="calculate()">
+                    <option value="650">650 mm</option>
+                    <option value="800">800 mm</option>
+                    <option value="1000">1000 mm</option>
+                    <option value="1400">1400 mm</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="epRating">EP Rating</label>
+            <div class="select-wrapper">
+                <select id="epRating" onchange="calculate()">
+                    <option value="400">EP 400</option>
+                    <option value="630">EP 630</option>
+                    <option value="800">EP 800</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="plyNo">Number of Plies</label>
+            <div class="select-wrapper">
+                <select id="plyNo" onchange="calculate()">
+                    <option value="2">2 Plies</option>
+                    <option value="3">3 Plies</option>
+                    <option value="4" selected>4 Plies</option>
+                    <option value="5">5 Plies</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="thickness">Belt Thickness (mm)</label>
+            <input type="number" id="thickness" value="10" oninput="calculate()">
+        </div>
+
+        <div class="results-section">
+            <h3>Calculated Dimensions</h3>
+
+            <div class="result-row">
+                <span>Number of Steps:</span>
+                <span class="result-val" id="noSteps">3</span>
+            </div>
+
+            <div class="result-row">
+                <span>Min Step Length:</span>
+                <span class="result-val" id="minStepLen">200 mm</span>
+            </div>
+
+            <div class="result-row">
+                <span>Bias Angle:</span>
+                <span class="result-val">22°</span>
+            </div>
+
+            <div class="result-row">
+                <span>Bias Length:</span>
+                <span class="result-val" id="biasLen">273 mm</span>
+            </div>
+
+            <div class="result-row highlight-row">
+                <span>Total Splice Length:</span>
+                <span class="result-val" id="totalSpliceLen">873 mm</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="pwa-banner">
+        📱 <b>Install on Mobile:</b> Tap your browser menu (Share/Settings) and select <b>"Add to Home Screen"</b> to use offline!
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const width = parseFloat(document.getElementById('beltWidth').value) || 0;
+        const ep = parseInt(document.getElementById('epRating').value) || 0;
+        const plies = parseInt(document.getElementById('plyNo').value) || 0;
+
+        // Steps = Plies - 1
+        const steps = plies > 0 ? plies - 1 : 0;
+        document.getElementById('noSteps').innerText = steps;
+
+        // Min Step Length based on EP Rating
+        let stepLen = 0;
+        if (ep === 400) stepLen = 200;
+        else if (ep === 630) stepLen = 250;
+        else if (ep === 800) stepLen = 300;
+        document.getElementById('minStepLen').innerText = stepLen + ' mm';
+
+        // Bias Length = 0.42 * Belt Width
+        const biasLen = Math.round(0.42 * width);
+        document.getElementById('biasLen').innerText = biasLen + ' mm';
+
+        // Total Splice Length = (Steps * Step Length) + Bias Length
+        const totalLen = (steps * stepLen) + biasLen;
+        document.getElementById('totalSpliceLen').innerText = totalLen + ' mm';
+    }
+
+    calculate();
+</script>
+
+</body>
+</html>
